@@ -1,0 +1,34 @@
+{% extends "taller/base.html" %}
+{% block titulo %}Inicio{% endblock %}
+{% block contenido %}
+<h1>Hola, {{ user.first_name|default:user.username }}</h1>
+
+<div class="rejilla">
+  <div class="tarjeta">
+    <h2>Órdenes abiertas {% if rol == 'MECANICO' %}(tuyas){% endif %}</h2>
+    {% if ordenes_abiertas %}
+    <table>
+      <tr><th>OT</th><th>Vehículo</th><th>Avería</th></tr>
+      {% for o in ordenes_abiertas %}
+      <tr>
+        <td>{% if rol != 'RECEPCION' %}<a href="{% url 'orden_detalle' o.pk %}">OT-{{ o.pk }}</a>{% else %}OT-{{ o.pk }}{% endif %}</td>
+        <td>{{ o.vehiculo.matricula }}</td><td>{{ o.averia }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}<p class="muted">No hay órdenes abiertas.</p>{% endif %}
+  </div>
+
+  <div class="tarjeta">
+    <h2>⚠ Piezas bajo mínimo</h2>
+    {% if piezas_alerta %}
+    <table>
+      <tr><th>Pieza</th><th>Stock</th><th>Mínimo</th></tr>
+      {% for p in piezas_alerta %}
+      <tr class="alerta"><td>{{ p.nombre }}</td><td>{{ p.stock }}</td><td>{{ p.stock_minimo }}</td></tr>
+      {% endfor %}
+    </table>
+    {% else %}<p class="muted">Todo el stock está por encima del mínimo.</p>{% endif %}
+  </div>
+</div>
+{% endblock %}

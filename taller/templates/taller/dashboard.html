@@ -1,0 +1,46 @@
+{% extends "taller/base.html" %}
+{% block titulo %}Dashboard{% endblock %}
+{% block contenido %}
+<h1>Dashboard <span class="chip mongo">MongoDB · aggregate</span></h1>
+
+<div class="rejilla">
+  <div class="tarjeta">
+    <h2>Consumo de piezas por mecánico (30 días)</h2>
+    <table>
+      <tr><th>Mecánico</th><th>Piezas</th><th style="width:45%"></th></tr>
+      {% for c in consumo %}
+      <tr><td>{{ c.id }}</td><td>{{ c.piezas }}</td><td><div class="barra" style="width:{{ c.pct }}%"></div></td></tr>
+      {% empty %}<tr><td colspan="3" class="muted">Sin datos.</td></tr>{% endfor %}
+    </table>
+  </div>
+
+  <div class="tarjeta">
+    <h2>Piezas más usadas</h2>
+    <table>
+      <tr><th>Pieza</th><th>Uds.</th><th style="width:45%"></th></tr>
+      {% for t in top %}
+      <tr><td>{{ t.id }}</td><td>{{ t.total }}</td><td><div class="barra" style="width:{{ t.pct }}%;background:#1e8449"></div></td></tr>
+      {% empty %}<tr><td colspan="3" class="muted">Sin datos.</td></tr>{% endfor %}
+    </table>
+  </div>
+</div>
+
+<div class="rejilla">
+  <div class="tarjeta">
+    <h2>Órdenes cerradas por día (14 días)</h2>
+    <table>
+      <tr><th>Día</th><th>Órdenes</th><th>Horas</th></tr>
+      {% for d in por_dia %}<tr><td>{{ d.id }}</td><td>{{ d.ordenes }}</td><td>{{ d.horas|floatformat:2 }}</td></tr>
+      {% empty %}<tr><td colspan="3" class="muted">Sin datos.</td></tr>{% endfor %}
+    </table>
+  </div>
+
+  <div class="tarjeta">
+    <h2>Últimos eventos</h2>
+    <table>
+      <tr><th>Fecha</th><th>Tipo</th><th>Usuario</th></tr>
+      {% for e in eventos %}<tr><td>{{ e.fecha|date:"d/m H:i" }}</td><td>{{ e.tipo }}</td><td>{{ e.usuario }}</td></tr>{% endfor %}
+    </table>
+  </div>
+</div>
+{% endblock %}

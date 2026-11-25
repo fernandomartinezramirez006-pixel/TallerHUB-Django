@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}TallerHub{% endblock %} · TallerHub</title>
+  <style>
+    :root { --azul:#1f3a5f; --azul2:#2f5d8a; --gris:#f3f5f8; --borde:#d9dee5; --rojo:#c0392b; --verde:#1e8449; --naranja:#d68910; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--gris); color:#222; }
+    header { background:var(--azul); color:#fff; padding:.7rem 1.5rem; display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap; }
+    header .logo { font-weight:700; font-size:1.2rem; }
+    header .logo span { background:#fff; color:var(--azul); border-radius:4px; padding:0 .35rem; margin-right:.35rem; }
+    header nav a { color:#dfe8f2; text-decoration:none; margin-right:1rem; }
+    header nav a:hover { color:#fff; text-decoration:underline; }
+    header .usuario { margin-left:auto; font-size:.9rem; }
+    header .usuario a { color:#fff; }
+    main { max-width:1100px; margin:1.5rem auto; padding:0 1rem; }
+    h1 { color:var(--azul); margin-top:0; }
+    h2 { color:var(--azul2); font-size:1.15rem; }
+    .tarjeta { background:#fff; border:1px solid var(--borde); border-radius:8px; padding:1rem 1.25rem; margin-bottom:1rem; }
+    .rejilla { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1rem; }
+    table { width:100%; border-collapse:collapse; background:#fff; }
+    th, td { padding:.5rem .6rem; border-bottom:1px solid var(--borde); text-align:left; font-size:.93rem; }
+    th { background:#eef2f7; }
+    tr.alerta td { background:#fdecea; }
+    a { color:var(--azul2); }
+    .btn { display:inline-block; background:var(--azul2); color:#fff; border:0; border-radius:5px; padding:.45rem .9rem; cursor:pointer; text-decoration:none; font-size:.9rem; }
+    .btn.rojo { background:var(--rojo); } .btn.verde { background:var(--verde); } .btn.gris { background:#7f8c8d; }
+    input, select, textarea { padding:.4rem; border:1px solid var(--borde); border-radius:4px; font:inherit; }
+    textarea { width:100%; min-height:160px; font-family:monospace; }
+    .msg { padding:.6rem 1rem; border-radius:6px; margin-bottom:.6rem; }
+    .msg.error { background:#fdecea; color:var(--rojo); } .msg.success { background:#e8f6ee; color:var(--verde); }
+    .msg.warning { background:#fef5e7; color:var(--naranja); } .msg.info { background:#eaf2fb; color:var(--azul); }
+    .chip { display:inline-block; padding:.1rem .5rem; border-radius:999px; font-size:.78rem; font-weight:600; }
+    .chip.redis { background:#fdecea; color:#c0392b; } .chip.postgres { background:#eaf2fb; color:#2f5d8a; }
+    .chip.mongo { background:#e8f6ee; color:#1e8449; } .chip.neo4j { background:#f4ecf7; color:#7d3c98; }
+    .barra { background:var(--azul2); height:14px; border-radius:3px; }
+    .muted { color:#777; font-size:.88rem; }
+    form.linea { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo"><span>TH</span>TallerHub</div>
+  {% if user.is_authenticated %}
+  <nav>
+    <a href="{% url 'inicio' %}">Inicio</a>
+    <a href="{% url 'vehiculos' %}">Vehículos</a>
+    <a href="{% url 'stock' %}">Stock</a>
+    {% if rol_usuario == 'JEFE' or rol_usuario == 'MECANICO' %}<a href="{% url 'ordenes' %}">Órdenes</a>{% endif %}
+    {% if rol_usuario == 'JEFE' %}<a href="{% url 'dashboard' %}">Dashboard</a>{% endif %}
+    {% if user.is_staff %}<a href="/admin/">Administración</a>{% endif %}
+  </nav>
+  <div class="usuario">{{ user.username }} · {{ rol_usuario|default:"" }} · <a href="{% url 'logout' %}">Salir</a></div>
+  {% endif %}
+</header>
+<main>
+  {% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}
+  {% block contenido %}{% endblock %}
+</main>
+</body>
+</html>

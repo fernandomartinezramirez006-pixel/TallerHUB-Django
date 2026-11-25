@@ -1,0 +1,15 @@
+{% extends "taller/base.html" %}
+{% block titulo %}Acceso{% endblock %}
+{% block contenido %}
+<div class="tarjeta" style="max-width:380px;margin:3rem auto;">
+  <h1>Acceso</h1>
+  <p class="muted">Paso 1 de 2: usuario y contraseña.</p>
+  <form method="post">
+    {% csrf_token %}
+    <p><input name="username" placeholder="Usuario" required autofocus style="width:100%"></p>
+    <p><input name="password" type="password" placeholder="Contraseña" required style="width:100%"></p>
+    <button class="btn" type="submit">Continuar</button>
+  </form>
+  <p class="muted">Tras 5 intentos fallidos el usuario se bloquea 15 min <span class="chip redis">Redis</span></p>
+</div>
+{% endblock %}

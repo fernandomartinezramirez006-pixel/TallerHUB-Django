@@ -1,0 +1,73 @@
+{% extends "taller/base.html" %}
+{% block titulo %}OT-{{ orden.pk }}{% endblock %}
+{% block contenido %}
+<h1>OT-{{ orden.pk }} · {{ orden.get_estado_display }}</h1>
+<p class="muted">
+  <a href="{% url 'vehiculo_detalle' orden.vehiculo.pk %}">{{ orden.vehiculo }}</a> ·
+  Avería: <strong>{{ orden.averia }}</strong> · Mecánico: {{ orden.mecanico.username }} ·
+  Abierta el {{ orden.fecha_apertura|date:"d/m/Y H:i" }}
+</p>
+{% if orden.descripcion %}<p>{{ orden.descripcion }}</p>{% endif %}
+
+<div class="rejilla">
+  <div class="tarjeta">
+    <h2>Piezas usadas <span class="chip postgres">PostgreSQL</span></h2>
+    <table>
+      <tr><th>Pieza</th><th>Cantidad</th></tr>
+      {% for l in lineas %}<tr><td>{{ l.pieza }}</td><td>{{ l.cantidad }}</td></tr>
+      {% empty %}<tr><td colspan="2" class="muted">Ninguna todavía.</td></tr>{% endfor %}
+    </table>
+
+    {% if orden.estado == 'ABIERTA' %}
+    <h2>Añadir pieza</h2>
+    <form method="post" action="{% url 'orden_usar_pieza' orden.pk %}" class="linea">
+      {% csrf_token %}
+      <select name="pieza" required>
+        {% for p in piezas %}<option value="{{ p.pk }}">{{ p.nombre }} (stock {{ p.stock }})</option>{% endfor %}
+      </select>
+      <input name="cantidad" type="number" min="1" value="1" style="width:70px">
+      <button class="btn">Añadir</button>
+    </form>
+    <p class="muted">Descuenta stock en una transacción y registra el uso en <span class="chip mongo">MongoDB</span></p>
+    {% endif %}
+  </div>
+
+  <div class="tarjeta">
+    <h2>Piezas sugeridas <span class="chip neo4j">Neo4j</span></h2>
+    <p class="muted">Criterio: {{ criterio }}</p>
+    {% if sugerencias %}
+    <table>
+      <tr><th>Pieza</th><th>Usada en</th><th>Stock</th><th></th></tr>
+      {% for s in sugerencias %}
+      <tr>
+        <td>{{ s.nombre }}</td><td>{{ s.veces }} reparación(es)</td><td>{{ s.stock }}</td>
+        <td>
+          {% if orden.estado == 'ABIERTA' and s.id %}
+          <form method="post" action="{% url 'orden_usar_pieza' orden.pk %}">
+            {% csrf_token %}<input type="hidden" name="pieza" value="{{ s.id }}"><input type="hidden" name="cantidad" value="1">
+            <button class="btn verde">+1</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}<p class="muted">Sin sugerencias para esta avería.</p>{% endif %}
+  </div>
+</div>
+
+{% if orden.estado == 'ABIERTA' %}
+<div class="tarjeta">
+  <h2>Cerrar orden</h2>
+  <form method="post" action="{% url 'orden_cerrar' orden.pk %}" class="linea">
+    {% csrf_token %}
+    <label>Horas de trabajo <input name="horas" type="number" step="0.25" min="0" value="1" style="width:90px"></label>
+    <button class="btn rojo">Cerrar orden</button>
+  </form>
+  <p class="muted">Al cerrar: se guarda en PostgreSQL, se invalida la caché del historial en Redis,
+    se registra el evento en MongoDB y la reparación se añade al grafo de Neo4j.</p>
+</div>
+{% else %}
+<p class="muted">Cerrada el {{ orden.fecha_cierre|date:"d/m/Y H:i" }} · {{ orden.horas }} h</p>
+{% endif %}
+{% endblock %}

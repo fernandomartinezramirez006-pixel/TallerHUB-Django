@@ -1,0 +1,18 @@
+{% extends "taller/base.html" %}
+{% block titulo %}Código OTP{% endblock %}
+{% block contenido %}
+<div class="tarjeta" style="max-width:380px;margin:3rem auto;">
+  <h1>Verificación</h1>
+  <p class="muted">Paso 2 de 2: introduce el código de 6 dígitos.</p>
+  <form method="post">
+    {% csrf_token %}
+    <p><input name="codigo" placeholder="000000" maxlength="6" required autofocus style="width:100%;font-size:1.4rem;letter-spacing:.3rem;text-align:center"></p>
+    <button class="btn" type="submit">Entrar</button>
+    <a class="btn gris" href="{% url 'login' %}">Volver</a>
+  </form>
+  <p class="muted">
+    {% if ttl > 0 %}El código caduca en {{ ttl }} s{% else %}El código ha caducado: vuelve al paso 1{% endif %}
+    <span class="chip redis">Redis · TTL</span>
+  </p>
+</div>
+{% endblock %}

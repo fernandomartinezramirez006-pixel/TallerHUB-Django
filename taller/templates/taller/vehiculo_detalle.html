@@ -1,0 +1,67 @@
+{% extends "taller/base.html" %}
+{% block titulo %}{{ v.matricula }}{% endblock %}
+{% block contenido %}
+<h1>{{ v.matricula }} · {{ v.marca }} {{ v.modelo }} ({{ v.anio }})</h1>
+<p class="muted">Cliente: {{ v.cliente.nombre }} · {{ v.cliente.telefono }}</p>
+
+<div class="rejilla">
+  {% if puede_abrir %}
+  <div class="tarjeta">
+    <h2>Abrir orden de trabajo</h2>
+    <form method="post" action="{% url 'orden_nueva' v.pk %}">
+      {% csrf_token %}
+      <p><select name="averia" required>
+        {% for a in averias %}<option value="{{ a.pk }}">{{ a.nombre }}</option>{% endfor %}
+      </select></p>
+      <p><input name="descripcion" placeholder="Descripción (opcional)" style="width:100%"></p>
+      <button class="btn">Abrir orden</button> <span class="chip postgres">PostgreSQL</span>
+    </form>
+  </div>
+  {% endif %}
+
+  <div class="tarjeta">
+    <h2>Averías frecuentes en {{ v.marca }} {{ v.modelo }} <span class="chip neo4j">Neo4j</span></h2>
+    {% if averias_frecuentes %}
+    <ul>{% for a in averias_frecuentes %}<li>{{ a.averia }} — {{ a.veces }} reparaciones</li>{% endfor %}</ul>
+    {% else %}<p class="muted">Aún no hay historial de este modelo en el grafo.</p>{% endif %}
+  </div>
+</div>
+
+<div class="tarjeta">
+  <h2>Historial de reparaciones</h2>
+  <p class="muted">
+    Servido desde <span class="chip {{ origen }}">{{ origen|upper }}</span> en <strong>{{ ms }} ms</strong>
+    {% if origen == 'postgres' %}(MISS: se ha guardado en Redis con TTL){% else %}(HIT de caché){% endif %}
+  </p>
+  <table>
+    <tr><th>OT</th><th>Fecha</th><th>Avería</th><th>Mecánico</th><th>Piezas</th><th>Horas</th><th>Estado</th></tr>
+    {% for o in historial %}
+    <tr>
+      <td>{% if puede_abrir %}<a href="{% url 'orden_detalle' o.id %}">OT-{{ o.id }}</a>{% else %}OT-{{ o.id }}{% endif %}</td>
+      <td>{{ o.fecha }}</td><td>{{ o.averia }}</td><td>{{ o.mecanico }}</td>
+      <td>{{ o.piezas|join:", "|default:"—" }}</td><td>{{ o.horas }}</td><td>{{ o.estado }}</td>
+    </tr>
+    {% empty %}<tr><td colspan="7" class="muted">Sin reparaciones.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="tarjeta">
+  <h2>Fichas de revisión <span class="chip mongo">MongoDB</span></h2>
+  {% if puede_abrir %}<p><a class="btn" href="{% url 'ficha_nueva' v.pk %}">+ Nueva ficha</a></p>{% endif %}
+  {% for f in fichas %}
+    <div class="tarjeta" style="background:#fafbfc">
+      <strong>{{ f.fecha|date:"d/m/Y H:i" }}</strong> · {{ f.kilometros }} km · por {{ f.usuario }}
+      <ul>{% for k, val in f.campos.items %}<li><strong>{{ k }}</strong>: {{ val }}</li>{% endfor %}</ul>
+      {% if puede_abrir %}
+      <form method="post" action="{% url 'ficha_borrar' f.id %}" class="linea">
+        {% csrf_token %}
+        <a class="btn gris" href="{% url 'ficha_editar' f.id %}">Editar</a>
+        <button class="btn rojo" onclick="return confirm('¿Borrar la ficha?')">Borrar</button>
+      </form>
+      {% endif %}
+    </div>
+  {% empty %}<p class="muted">Sin fichas de revisión.</p>
+  {% endfor %}
+</div>
+{% endblock %}

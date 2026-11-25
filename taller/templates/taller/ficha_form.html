@@ -1,0 +1,19 @@
+{% extends "taller/base.html" %}
+{% block titulo %}Ficha de revisión{% endblock %}
+{% block contenido %}
+<h1>{% if ficha %}Editar{% else %}Nueva{% endif %} ficha de revisión · {{ v.matricula }}</h1>
+<div class="tarjeta">
+  <form method="post">
+    {% csrf_token %}
+    <p><label>Kilómetros <input name="kilometros" type="number" min="0" value="{{ ficha.kilometros|default:'' }}" required></label></p>
+    <p><label>Campos de la revisión (uno por línea, formato <code>campo: valor</code>).
+      Cada vehículo puede tener campos distintos: por eso se guarda en <span class="chip mongo">MongoDB</span>.</label></p>
+    <textarea name="campos" placeholder="aceite: cambiado 5W30
+filtro_aire: OK
+neumaticos_delanteros: 3 mm
+filtro_particulas: limpio (solo diésel)
+estado_bateria_hv: 92% (solo eléctricos)">{{ texto }}</textarea>
+    <p><button class="btn">Guardar</button> <a class="btn gris" href="{% url 'vehiculo_detalle' v.pk %}">Cancelar</a></p>
+  </form>
+</div>
+{% endblock %}

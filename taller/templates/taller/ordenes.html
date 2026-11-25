@@ -1,0 +1,22 @@
+{% extends "taller/base.html" %}
+{% block titulo %}Órdenes{% endblock %}
+{% block contenido %}
+<h1>Órdenes de trabajo</h1>
+<p>
+  <a class="btn {% if estado != 'ABIERTA' %}gris{% endif %}" href="?estado=ABIERTA">Abiertas</a>
+  <a class="btn {% if estado != 'CERRADA' %}gris{% endif %}" href="?estado=CERRADA">Cerradas</a>
+  <a class="btn {% if estado != 'TODAS' %}gris{% endif %}" href="?estado=TODAS">Todas</a>
+</p>
+<table>
+  <tr><th>OT</th><th>Fecha</th><th>Vehículo</th><th>Avería</th><th>Mecánico</th><th>Estado</th></tr>
+  {% for o in ordenes %}
+  <tr>
+    <td><a href="{% url 'orden_detalle' o.pk %}">OT-{{ o.pk }}</a></td>
+    <td>{{ o.fecha_apertura|date:"d/m/Y" }}</td>
+    <td>{{ o.vehiculo.matricula }} · {{ o.vehiculo.modelo_completo }}</td>
+    <td>{{ o.averia }}</td><td>{{ o.mecanico.username }}</td><td>{{ o.get_estado_display }}</td>
+  </tr>
+  {% empty %}<tr><td colspan="6" class="muted">No hay órdenes.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

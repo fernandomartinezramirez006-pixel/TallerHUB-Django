@@ -1,0 +1,21 @@
+{% extends "taller/base.html" %}
+{% block titulo %}Vehículos{% endblock %}
+{% block contenido %}
+<h1>Vehículos</h1>
+<form class="linea tarjeta" method="get">
+  <input name="q" value="{{ q }}" placeholder="Matrícula, modelo o cliente" style="flex:1">
+  <button class="btn">Buscar</button>
+  {% if user.is_staff %}<a class="btn gris" href="/admin/taller/vehiculo/add/">+ Alta de vehículo</a>{% endif %}
+</form>
+<table>
+  <tr><th>Matrícula</th><th>Vehículo</th><th>Año</th><th>Cliente</th></tr>
+  {% for v in vehiculos %}
+  <tr>
+    <td><a href="{% url 'vehiculo_detalle' v.pk %}">{{ v.matricula }}</a></td>
+    <td>{{ v.marca }} {{ v.modelo }}</td><td>{{ v.anio }}</td><td>{{ v.cliente }}</td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="4" class="muted">Sin resultados.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}
